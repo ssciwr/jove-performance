@@ -5,6 +5,7 @@
 //#include "../integrals/jove_vmul.h"
 #include "../utils/ttimer.h"
 #include "../utils/pprinter.h"
+#include <Eigen/Eigen>
 
 namespace libjove {
 
@@ -92,7 +93,6 @@ namespace libjove {
                                                 (double) (f_mat(pos_f, pos_f)/2));
                         }//for a
                 
-
                         for (int i = 0; i < occ; i++){
                             for (int a = 0; a < virt; a++){
                                 int pos_f = a + occ;
@@ -107,34 +107,29 @@ namespace libjove {
                         arma::inplace_trans(o_i_p_k2);
                         arma::inplace_trans(v_a_p_k2);
 
+                        using VecMap = const Eigen::Map<const Eigen::VectorXd>;
+                        using MatMap = const Eigen::Map<const Eigen::MatrixXd>;
                         for (int p = 0; p < npts; p++){
+                                // construct Eigen types that are const refs to the armadillo raw data
+                                VecMap o_p = VecMap(o_i_p_k2.unsafe_col(p).memptr(), occ);
+                                VecMap v_p = VecMap(v_a_p_k2.unsafe_col(p).memptr(), virt);
+                                MatMap c2_p = MatMap(coulomb2.slice(p).memptr(), occ, virt);
                                 for (int q = 0; q <= p; q++){
+                                        VecMap o_q = VecMap(o_i_p_k2.unsafe_col(q).memptr(), occ);
+                                        VecMap v_q = VecMap(v_a_p_k2.unsafe_col(q).memptr(), virt);
+                                        MatMap c2_q = MatMap(coulomb2.slice(q).memptr(), occ, virt);
                                         double jo=0;
                                         for (int a = 0; a < virt; a++){
-                                                double tmp1 = 0;
-                                                double tmp2 = 0;
-                                                for (int i = 0; i < occ; i++){
-                                                        tmp1 += o_i_p_k2(i,p) * coulomb2(i,a,q);
-                                                }//for i
-                                                for (int j = 0; j < occ; j++){
-                                                        tmp2 += o_i_p_k2(j,q) * coulomb2(j,a,p);
-                                                }//for j
+                                                double tmp1 = o_p.dot(c2_q.col(a));
+                                                double tmp2 = o_q.dot(c2_p.col(a));
                                                 jo += tmp1 * tmp2;
                                         }//a
-                                        double j = 0;
-                                        for (int a = 0; a < virt; a++){
-                                                for (int i = 0; i < occ; i++){
-                                                        j += coulomb2(i,a,p) * coulomb2(i,a,q);
-                                                }//for a
-                                        }//for i
-                                        double o = 0;
-                                        for (int i = 0; i < occ; i++){
-                                                o += o_i_p_k2(i,p) * o_i_p_k2(i,q);
-                                        }//for i 
-                                        double v = 0;
-                                        for (int a = 0; a < virt; a++){
-                                                v += v_a_p_k2(a,p) * v_a_p_k2(a,q);
-                                        }//for a
+                                        // note: the above could be written as
+                                        // double jo = ((c2_q.transpose()*o_p)).dot((c2_p.transpose()*o_q));
+                                        // but the result is much slower than the explicit loop above
+                                        double j = (c2_p.cwiseProduct(c2_q)).sum();
+                                        double o = o_p.dot(o_q);
+                                        double v = v_p.dot(v_q);
                                         double sum = (jo - 2 * j * o) * v;
                                         if(p!=q){
                                                 sum *= 2.0;
