@@ -103,6 +103,10 @@ namespace libjove {
 
                         double e_k = 0;
 
+                        // transpose so we are iterating over the inner index to reduce cache misses
+                        arma::inplace_trans(o_i_p_k2);
+                        arma::inplace_trans(v_a_p_k2);
+
                         for (int p = 0; p < npts; p++){
                                 for (int q = 0; q < npts; q++){
                                         double jo=0;
@@ -110,10 +114,10 @@ namespace libjove {
                                                 double tmp1 = 0;
                                                 double tmp2 = 0;
                                                 for (int i = 0; i < occ; i++){
-                                                        tmp1 += o_i_p_k2(p,i) * coulomb2(i,a,q);
+                                                        tmp1 += o_i_p_k2(i,p) * coulomb2(i,a,q);
                                                 }//for i
                                                 for (int j = 0; j < occ; j++){
-                                                        tmp2 += o_i_p_k2(q,j) * coulomb2(j,a,p);
+                                                        tmp2 += o_i_p_k2(j,q) * coulomb2(j,a,p);
                                                 }//for j
                                                 jo += tmp1 * tmp2;
                                         }//a
@@ -125,11 +129,11 @@ namespace libjove {
                                         }//for i
                                         double o = 0;
                                         for (int i = 0; i < occ; i++){
-                                                o += o_i_p_k2(p,i) * o_i_p_k2(q,i);
+                                                o += o_i_p_k2(i,p) * o_i_p_k2(i,q);
                                         }//for i 
                                         double v = 0;
                                         for (int a = 0; a < virt; a++){
-                                                v += v_a_p_k2(p,a) * v_a_p_k2(q,a);
+                                                v += v_a_p_k2(a,p) * v_a_p_k2(a,q);
                                         }//for a
                                         e_k += (jo - 2 * j * o) * v;
                                 }//for q
