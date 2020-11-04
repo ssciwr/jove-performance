@@ -108,7 +108,7 @@ namespace libjove {
                         arma::inplace_trans(v_a_p_k2);
 
                         for (int p = 0; p < npts; p++){
-                                for (int q = 0; q < npts; q++){
+                                for (int q = 0; q <= p; q++){
                                         double jo=0;
                                         for (int a = 0; a < virt; a++){
                                                 double tmp1 = 0;
@@ -135,7 +135,11 @@ namespace libjove {
                                         for (int a = 0; a < virt; a++){
                                                 v += v_a_p_k2(a,p) * v_a_p_k2(a,q);
                                         }//for a
-                                        e_k += (jo - 2 * j * o) * v;
+                                        double sum = (jo - 2 * j * o) * v;
+                                        if(p!=q){
+                                                sum *= 2.0;
+                                        }
+                                        e_k += sum;
                                 }//for q
                         }//for p
                         e_mp2 += twts(0,k) * e_k;
