@@ -122,8 +122,8 @@ namespace libjove {
                                                 jo += tmp1 * tmp2;
                                         }//a
                                         double j = 0;
-                                        for (int i = 0; i < occ; i++){
-                                                for (int  a = 0; a < virt; a++){
+                                        for (int a = 0; a < virt; a++){
+                                                for (int i = 0; i < occ; i++){
                                                         j += coulomb2(i,a,p) * coulomb2(i,a,q);
                                                 }//for a
                                         }//for i
