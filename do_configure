@@ -1,0 +1,11 @@
+#!/bin/bash
+
+export INTEL_LICENSE_FILE="/opt/software/intel/licenses"
+
+source /opt/software/intel/compilers_and_libraries_2019/bin/compilervars.sh -arch intel64 -platform linux
+source /opt/software/intel/compilers_and_libraries_2019/mkl/bin/mklvars.sh intel64
+
+export CMAKE_PREFIX_PATH="/opt/software/armadillo/mkl/6.200/usr/"
+
+./configure intel debug
+
