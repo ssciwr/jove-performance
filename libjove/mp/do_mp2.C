@@ -6,6 +6,7 @@
 #include "../utils/ttimer.h"
 #include "../utils/pprinter.h"
 #include <Eigen/Eigen>
+#include <omp.h>
 
 namespace libjove {
 
@@ -79,7 +80,7 @@ namespace libjove {
                 ttimer tmain("Main");
                 tmain.start();
 
-// #pragma omp parallel for                
+#pragma omp parallel for
                 for (int k = 0; k < tsize; k++){
                         Eigen::VectorXd teps_o(occ);
                         for (int i = 0; i < occ; i++){

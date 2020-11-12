@@ -5,6 +5,7 @@ find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 find_package(Doxygen 1.8)
+find_package(OpenMP REQUIRED)
 
 option(LIBJOVE_TESTS "Build libjove tests" ON)
 add_subdirectory(libjove)
@@ -12,6 +13,7 @@ add_subdirectory(libjove)
 if(LIBJOVE_TESTS)
         add_subdirectory(tests)
 endif(LIBJOVE_TESTS)
+
 
 if(DOXYGEN_FOUND)
     configure_file(

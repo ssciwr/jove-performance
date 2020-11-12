@@ -80,5 +80,6 @@ set(HDR_COMMON
 
 add_library(jove ${SRC_COMMON} ${HDR_CMMON})
 target_include_directories(jove PUBLIC "${LIBJOVE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/eigen")
-target_link_libraries(jove ${ARMADILLO_LIBRARIES}) 
+target_compile_definitions(jove PUBLIC EIGEN_DONT_PARALLELIZE)
+target_link_libraries(jove ${ARMADILLO_LIBRARIES} OpenMP::OpenMP_CXX)
 install(TARGETS jove DESTINATION "${CMAKE_SOURCE_DIR}/exe")
