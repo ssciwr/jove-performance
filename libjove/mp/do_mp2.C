@@ -80,35 +80,39 @@ namespace libjove {
                 ttimer tmain("Main");
                 tmain.start();
 
-// #pragma omp parallel for reduction(+:e_mp2) default(none) shared(tsize, npts, occ, virt, tpts, twts, f_mat, o_i_p_k, v_a_p_k, tcoulomb, out)
+                // pre-calculate t factors
+                std::vector<Eigen::VectorXd> teps_o(tsize, Eigen::VectorXd(occ));
+                std::vector<Eigen::VectorXd> teps_v(tsize, Eigen::VectorXd(virt));
+                std::vector<Eigen::MatrixXd> teps_c;
+                teps_c.reserve(tsize);
                 for (int k = 0; k < tsize; k++){
-                        Eigen::VectorXd teps_o(occ);
                         for (int i = 0; i < occ; i++){
-                            teps_o[i] = pow((double)tpts(0,k), (double) (- f_mat(i,i)));
+                            teps_o[k][i] = pow((double)tpts(0,k), (double) (- f_mat(i,i)));
                         }//for i
 
-                        Eigen::VectorXd teps_v(virt);
                         for (int a = 0; a < virt; a++){
                             int pos_f = a + occ;
-                            teps_v[a] = pow((double)tpts(0,k),
+                            teps_v[k][a] = pow((double)tpts(0,k),
                                             (double) (f_mat(pos_f, pos_f)));
                         }//for a
 
                         double inv_t = 1.0/(double)tpts(0,k);
-                        Eigen::MatrixXd teps_c = teps_o*teps_v.transpose()*inv_t;
+                        teps_c.push_back(teps_o[k]*teps_v[k].transpose()*inv_t);
+                }
 
-                        double e_k = 0;
-                        using VecMap = const Eigen::Map<const Eigen::VectorXd>;
-                        using MatMap = const Eigen::Map<const Eigen::MatrixXd>;
-                        Eigen::VectorXd o_p;
-                        Eigen::VectorXd v_p;
-                        Eigen::MatrixXd c2_p;
-                        #pragma omp parallel for reduction(+:e_k) default(none) firstprivate(o_p, v_p, c2_p) shared(npts, occ, virt, teps_o, teps_v, teps_c, o_i_p_k, v_a_p_k, tcoulomb)
+                using VecMap = const Eigen::Map<const Eigen::VectorXd>;
+                using MatMap = const Eigen::Map<const Eigen::MatrixXd>;
+                Eigen::VectorXd o_p;
+                Eigen::VectorXd v_p;
+                Eigen::MatrixXd c2_p;
+
+#pragma omp parallel for reduction(+:e_mp2) default(none) firstprivate(o_p, v_p, c2_p) shared(tsize, npts, occ, virt, twts, o_i_p_k, v_a_p_k, tcoulomb, teps_o, teps_v, teps_c) collapse(2)
+                for (int k = 0; k < tsize; k++){
                         for (int p = 0; p < npts; p++){
                                 // calculate t^x factors for this p & insert here - avoid copying everything
-                                o_p = VecMap(o_i_p_k.unsafe_col(p).memptr(), occ).cwiseProduct(teps_o);
-                                v_p = VecMap(v_a_p_k.unsafe_col(p).memptr(), virt).cwiseProduct(teps_v);
-                                c2_p = MatMap(tcoulomb.slice(p).memptr(), occ, virt).cwiseProduct(teps_c);
+                                o_p = VecMap(o_i_p_k.unsafe_col(p).memptr(), occ).cwiseProduct(teps_o[k]);
+                                v_p = VecMap(v_a_p_k.unsafe_col(p).memptr(), virt).cwiseProduct(teps_v[k]);
+                                c2_p = MatMap(tcoulomb.slice(p).memptr(), occ, virt).cwiseProduct(teps_c[k]);
                                 for (int q = 0; q <= p; q++){
                                         // construct Eigen types that are const refs to the armadillo raw data
                                         VecMap o_q = VecMap(o_i_p_k.unsafe_col(q).memptr(), occ);
@@ -130,11 +134,10 @@ namespace libjove {
                                         if(p!=q){
                                                 sum *= 2.0;
                                         }
-                                        e_k += sum;
+                                        e_mp2 += twts(0,k) * sum;
                                 }//for q
                         }//for p
-                        e_mp2 += twts(0,k) * e_k;
-                        out<<"  E_MP2: "<<e_mp2<<" with inc: "<<twts(0,k)*e_k<<" at t-Point, Weight "<<tpts(0,k)<<", "<<twts(0,k)<<" no."<<k+1<<"/"<<tsize<<std::endl;
+                        //out<<"  E_MP2: "<<e_mp2<<" with inc: "<<twts(0,k)*e_k<<" at t-Point, Weight "<<tpts(0,k)<<", "<<twts(0,k)<<" no."<<k+1<<"/"<<tsize<<std::endl;
                 }//for k
 
                 ttrans.print(out);

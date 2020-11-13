@@ -26,8 +26,9 @@ See the relevent commit message & changes to the code for more details
 
 The parallel speed-up from each commit to the repo:
 
-- [tsize](https://github.com/ssciwr/jove-performance/commit/301456c5f643a935abef0628a5edc8eb1f8b1b35): parallelize over `tsize`
-- [npts](https://github.com/ssciwr/jove-performance/commit/f87ef27788cc33d5cceb1764b3526e7d9919e983): parallelize over `npts`
+- [tsize](https://github.com/ssciwr/jove-performance/commit/ad5555cd3a866fe4f5891a0213fce31b440d477b): parallelize over `tsize`
+- [npts](https://github.com/ssciwr/jove-performance/commit/6f09110046bd1ca68a2d736ab77a65e66d59357a): parallelize over `npts`
+- [tsize+npts](https://github.com/ssciwr/jove-performance/commit/e82a9dc16f80e09ff8486ef70fcd04b708077fae): parallelize over `tsize` and `npts`
 
 See the relevent commit message & changes to the code for more details
 
