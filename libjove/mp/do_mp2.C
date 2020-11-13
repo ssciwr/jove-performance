@@ -5,6 +5,7 @@
 //#include "../integrals/jove_vmul.h"
 #include "../utils/ttimer.h"
 #include "../utils/pprinter.h"
+#include <Eigen/Eigen>
 
 namespace libjove {
 
@@ -57,6 +58,9 @@ namespace libjove {
                 
                 arma::mat o_i_p_k = cgto_values.cols(0, occ-1);
                 arma::mat v_a_p_k = cgto_values.cols(occ, nmo-1);
+                // transpose so we are iterating over the inner index to reduce cache misses
+                arma::inplace_trans(o_i_p_k);
+                arma::inplace_trans(v_a_p_k);
 
                 arma::cube tcoulomb;
                 tcoulomb.zeros(occ, virt, npts);
@@ -77,64 +81,49 @@ namespace libjove {
 
 // #pragma omp parallel for                
                 for (int k = 0; k < tsize; k++){
-                //make copy of matrix and scale it
-                        arma::mat o_i_p_k2 = o_i_p_k;
-                        arma::mat v_a_p_k2 = v_a_p_k;
-                        arma::cube coulomb2 = tcoulomb;
+                        Eigen::VectorXd teps_o(occ);
                         for (int i = 0; i < occ; i++){
-                            o_i_p_k2.col(i) = o_i_p_k2.col(i) * 
-                                    pow((double)tpts(0,k), (double) (- f_mat(i,i)/2));
+                            teps_o[i] = pow((double)tpts(0,k), (double) (- f_mat(i,i)));
                         }//for i
 
+                        Eigen::VectorXd teps_v(virt);
                         for (int a = 0; a < virt; a++){
                             int pos_f = a + occ;
-                            v_a_p_k2.col(a) = v_a_p_k2.col(a) * pow((double)tpts(0,k),
-                                                (double) (f_mat(pos_f, pos_f)/2));
+                            teps_v[a] = pow((double)tpts(0,k),
+                                            (double) (f_mat(pos_f, pos_f)));
                         }//for a
-                
 
-                        for (int i = 0; i < occ; i++){
-                            for (int a = 0; a < virt; a++){
-                                int pos_f = a + occ;
-                                coulomb2.tube(i,a) = tcoulomb.tube(i,a) * 
-                                    pow((double)tpts(0,k), (double) (f_mat(pos_f, pos_f)-f_mat(i,i)-1)/(2));
-                            }//for a
-                        }//for i
+                        double inv_t = 1.0/(double)tpts(0,k);
+                        Eigen::MatrixXd teps_c = teps_o*teps_v.transpose()*inv_t;
 
                         double e_k = 0;
-
-                        // transpose so we are iterating over the inner index to reduce cache misses
-                        arma::inplace_trans(o_i_p_k2);
-                        arma::inplace_trans(v_a_p_k2);
-
+                        using VecMap = const Eigen::Map<const Eigen::VectorXd>;
+                        using MatMap = const Eigen::Map<const Eigen::MatrixXd>;
+                        Eigen::VectorXd o_p;
+                        Eigen::VectorXd v_p;
+                        Eigen::MatrixXd c2_p;
                         for (int p = 0; p < npts; p++){
+                                // calculate t^x factors for this p & insert here - avoid copying everything
+                                o_p = VecMap(o_i_p_k.unsafe_col(p).memptr(), occ).cwiseProduct(teps_o);
+                                v_p = VecMap(v_a_p_k.unsafe_col(p).memptr(), virt).cwiseProduct(teps_v);
+                                c2_p = MatMap(tcoulomb.slice(p).memptr(), occ, virt).cwiseProduct(teps_c);
                                 for (int q = 0; q <= p; q++){
+                                        // construct Eigen types that are const refs to the armadillo raw data
+                                        VecMap o_q = VecMap(o_i_p_k.unsafe_col(q).memptr(), occ);
+                                        VecMap v_q = VecMap(v_a_p_k.unsafe_col(q).memptr(), virt);
+                                        MatMap c2_q = MatMap(tcoulomb.slice(q).memptr(), occ, virt);
                                         double jo=0;
                                         for (int a = 0; a < virt; a++){
-                                                double tmp1 = 0;
-                                                double tmp2 = 0;
-                                                for (int i = 0; i < occ; i++){
-                                                        tmp1 += o_i_p_k2(i,p) * coulomb2(i,a,q);
-                                                }//for i
-                                                for (int j = 0; j < occ; j++){
-                                                        tmp2 += o_i_p_k2(j,q) * coulomb2(j,a,p);
-                                                }//for j
+                                                double tmp1 = o_p.dot(c2_q.col(a));
+                                                double tmp2 = o_q.dot(c2_p.col(a));
                                                 jo += tmp1 * tmp2;
                                         }//a
-                                        double j = 0;
-                                        for (int a = 0; a < virt; a++){
-                                                for (int i = 0; i < occ; i++){
-                                                        j += coulomb2(i,a,p) * coulomb2(i,a,q);
-                                                }//for a
-                                        }//for i
-                                        double o = 0;
-                                        for (int i = 0; i < occ; i++){
-                                                o += o_i_p_k2(i,p) * o_i_p_k2(i,q);
-                                        }//for i 
-                                        double v = 0;
-                                        for (int a = 0; a < virt; a++){
-                                                v += v_a_p_k2(a,p) * v_a_p_k2(a,q);
-                                        }//for a
+                                        // note: the above could be written as
+                                        // double jo = ((c2_q.transpose()*o_p)).dot((c2_p.transpose()*o_q));
+                                        // but the result is much slower than the explicit loop above
+                                        double j = (c2_p.cwiseProduct(c2_q)).sum();
+                                        double o = (o_p).dot(o_q);
+                                        double v = (v_p).dot(v_q);
                                         double sum = (jo - 2 * j * o) * v;
                                         if(p!=q){
                                                 sum *= 2.0;
