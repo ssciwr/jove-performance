@@ -1,4 +1,4 @@
-#ifndef LIBJOVE_PPRINTER_H 
+#ifndef LIBJOVE_PRINTER_H
 #define LIBJOVE_PRINTER_H
 
 #include <iostream>
