@@ -80,7 +80,7 @@ namespace libjove {
                 ttimer tmain("Main");
                 tmain.start();
 
-#pragma omp parallel for
+// #pragma omp parallel for reduction(+:e_mp2) default(none) shared(tsize, npts, occ, virt, tpts, twts, f_mat, o_i_p_k, v_a_p_k, tcoulomb, out)
                 for (int k = 0; k < tsize; k++){
                         Eigen::VectorXd teps_o(occ);
                         for (int i = 0; i < occ; i++){
@@ -103,6 +103,7 @@ namespace libjove {
                         Eigen::VectorXd o_p;
                         Eigen::VectorXd v_p;
                         Eigen::MatrixXd c2_p;
+                        #pragma omp parallel for reduction(+:e_k) default(none) firstprivate(o_p, v_p, c2_p) shared(npts, occ, virt, teps_o, teps_v, teps_c, o_i_p_k, v_a_p_k, tcoulomb)
                         for (int p = 0; p < npts; p++){
                                 // calculate t^x factors for this p & insert here - avoid copying everything
                                 o_p = VecMap(o_i_p_k.unsafe_col(p).memptr(), occ).cwiseProduct(teps_o);
