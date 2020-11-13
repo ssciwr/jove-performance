@@ -106,7 +106,7 @@ namespace libjove {
                 Eigen::VectorXd v_p;
                 Eigen::MatrixXd c2_p;
 
-#pragma omp parallel for reduction(+:e_mp2) default(none) firstprivate(o_p, v_p, c2_p) shared(tsize, npts, occ, virt, twts, o_i_p_k, v_a_p_k, tcoulomb, teps_o, teps_v, teps_c) collapse(2)
+#pragma omp parallel for reduction(+:e_mp2) schedule(dynamic) default(none) firstprivate(o_p, v_p, c2_p) shared(tsize, npts, occ, virt, twts, o_i_p_k, v_a_p_k, tcoulomb, teps_o, teps_v, teps_c) collapse(2)
                 for (int k = 0; k < tsize; k++){
                         for (int p = 0; p < npts; p++){
                                 // calculate t^x factors for this p & insert here - avoid copying everything
