@@ -28,7 +28,9 @@ The parallel speed-up from each commit to the repo:
 
 - [tsize](https://github.com/ssciwr/jove-performance/commit/ad5555cd3a866fe4f5891a0213fce31b440d477b): parallelize over `tsize`
 - [npts](https://github.com/ssciwr/jove-performance/commit/6f09110046bd1ca68a2d736ab77a65e66d59357a): parallelize over `npts`
-- [tsize+npts](https://github.com/ssciwr/jove-performance/commit/e82a9dc16f80e09ff8486ef70fcd04b708077fae): parallelize over `tsize` and `npts`
+- [tsize+npts/dynamic](https://github.com/ssciwr/jove-performance/commit/3175db052060d1a4287347a811e91b8c0fbd6354): parallelize over `tsize` and `npts` + dynamic scheduling
+- [tsize+npts/dynamic](https://github.com/ssciwr/jove-performance/commit/612ac17b12164577cb386a9e474cd3a269e7c9ae): parallelize over `tsize` and `npts`, balance inner loop + static scheduling
+ + dynamic scheduling
 
 See the relevent commit message & changes to the code for more details
 
