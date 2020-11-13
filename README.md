@@ -11,7 +11,7 @@ TODOs:
 
 ## Benchmark history
 
-The speed-up from each commit to the repo:
+The serial speed-up from each commit to the repo:
 
 - [0](https://github.com/ssciwr/jove-performance/commit/301456c5f643a935abef0628a5edc8eb1f8b1b35): original version
 - [1](https://github.com/ssciwr/jove-performance/commit/f87ef27788cc33d5cceb1764b3526e7d9919e983): transpose data storage order to be more cache friendly
@@ -23,3 +23,12 @@ The speed-up from each commit to the repo:
 See the relevent commit message & changes to the code for more details
 
 ![benchmark](benchmark.png)
+
+The parallel speed-up from each commit to the repo:
+
+- [tsize](https://github.com/ssciwr/jove-performance/commit/301456c5f643a935abef0628a5edc8eb1f8b1b35): parallelize over `tsize`
+- [npts](https://github.com/ssciwr/jove-performance/commit/f87ef27788cc33d5cceb1764b3526e7d9919e983): parallelize over `npts`
+
+See the relevent commit message & changes to the code for more details
+
+![scaling](scaling.png)
