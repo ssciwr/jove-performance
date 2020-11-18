@@ -19,6 +19,8 @@ The serial speed-up from each commit to the repo:
 - [3](https://github.com/ssciwr/jove-performance/commit/b12d8e45c3533d69f2f02c5e2ecd924eab1299d4): do half the work by exploiting `p <-> q` symmetry
 - [4](https://github.com/ssciwr/jove-performance/commit/eb5d88e977ab9e25f9d67640c25690c57575029a): use [Eigen](https://eigen.tuxfamily.org) instead of Armadillo to generate vectorized code
 - [5](https://github.com/ssciwr/jove-performance/commit/6e44a30dc6f18f9f8faf02e99e7f9b7d8c874eb1): refactor to avoid some copies
+- [6](https://github.com/ssciwr/jove-performance/commit/57348b411257e3b8bbdd95faff600337e1e64566): refactor to allow parallelization & remove std::cout
+- [7](https://github.com/ssciwr/jove-performance/commit/90b66ba36773a49b1464b5c6d166ace945ab2735): avoid hidden copies in armadillo
 
 See the relevant commit message & changes to the code for more details
 
@@ -30,7 +32,8 @@ The parallel speed-up from each commit to the repo:
 - [npts](https://github.com/ssciwr/jove-performance/commit/6f09110046bd1ca68a2d736ab77a65e66d59357a): parallelize over `npts`
 - [tsize+npts](https://github.com/ssciwr/jove-performance/commit/b6d5a45df752d4a317542e6828c8cc402c46087f): parallelize over `tsize` and `npts`
 - [tsize+npts/dynamic](https://github.com/ssciwr/jove-performance/commit/06722f4918bee199c391a76d138a35924cf05af7): parallelize over `tsize` and `npts` + dynamic scheduling
-- [tsize+npts/dynamic/OMP_PROC_BIND](https://github.com/ssciwr/jove-performance/commit/57348b411257e3b8bbdd95faff600337e1e64566): parallelize over `tsize` and `npts` + dynamic scheduling + `export OMP_PROC_BIND=true` to stop OS from moving threads between cores
+- [tsize+npts/dynamic+bind](https://github.com/ssciwr/jove-performance/commit/57348b411257e3b8bbdd95faff600337e1e64566): parallelize over `tsize` and `npts` + dynamic scheduling + `export OMP_PROC_BIND=true` to stop OS from moving threads between cores
+- [tsize+npts/dynamic+bind+nocopies](https://github.com/ssciwr/jove-performance/commit/90b66ba36773a49b1464b5c6d166ace945ab2735): as above + avoid hidden copies in armadillo
 
 See the relevant commit message & changes to the code for more details
 

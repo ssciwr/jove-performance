@@ -11,3 +11,4 @@ p x w l ls 0 t "perfect scaling", \
 'scaling_2.txt' u 1:(381/$2) w lp t "tsize+npts", \
 'scaling_3.txt' u 1:(403/$2) w lp t "tsize+npts/dynamic", \
 'scaling_3a.txt' u 1:(403/$2) w lp t "tsize+npts/dynamic+bind", \
+'scaling_4.txt' u 1:(403/$2) w lp t "tsize+npts/dynamic+bind+nocopies"
