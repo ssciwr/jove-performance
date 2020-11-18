@@ -11,3 +11,5 @@
 3		904		do half the work by exploiting p<->q symmetry
 4		428		use Eigen instead of Armadillo to generate vectorized code
 5		427		refactor to avoid some copies
+6		404		refactor to allow parallelization & remove std::cout
+7		392		avoid hidden Armadillo copies
