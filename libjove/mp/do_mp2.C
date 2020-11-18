@@ -110,14 +110,14 @@ namespace libjove {
                 for (int k = 0; k < tsize; k++){
                         for (int p = 0; p < npts; p++){
                                 // calculate t^x factors for this p & insert here - avoid copying everything
-                                o_p = VecMap(o_i_p_k.unsafe_col(p).memptr(), occ).cwiseProduct(teps_o[k]);
-                                v_p = VecMap(v_a_p_k.unsafe_col(p).memptr(), virt).cwiseProduct(teps_v[k]);
-                                c2_p = MatMap(tcoulomb.slice(p).memptr(), occ, virt).cwiseProduct(teps_c[k]);
+                                o_p = VecMap(o_i_p_k.colptr(p), occ).cwiseProduct(teps_o[k]);
+                                v_p = VecMap(v_a_p_k.colptr(p), virt).cwiseProduct(teps_v[k]);
+                                c2_p = MatMap(tcoulomb.slice_memptr(p), occ, virt).cwiseProduct(teps_c[k]);
                                 for (int q = 0; q <= p; q++){
                                         // construct Eigen types that are const refs to the armadillo raw data
-                                        VecMap o_q = VecMap(o_i_p_k.unsafe_col(q).memptr(), occ);
-                                        VecMap v_q = VecMap(v_a_p_k.unsafe_col(q).memptr(), virt);
-                                        MatMap c2_q = MatMap(tcoulomb.slice(q).memptr(), occ, virt);
+                                        VecMap o_q(o_i_p_k.colptr(q), occ);
+                                        VecMap v_q(v_a_p_k.colptr(q), virt);
+                                        MatMap c2_q(tcoulomb.slice_memptr(q), occ, virt);
                                         double jo=0;
                                         for (int a = 0; a < virt; a++){
                                                 double tmp1 = o_p.dot(c2_q.col(a));
