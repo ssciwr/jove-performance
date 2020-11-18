@@ -19,6 +19,7 @@ The serial speed-up from each commit to the repo:
 - [3](https://github.com/ssciwr/jove-performance/commit/b12d8e45c3533d69f2f02c5e2ecd924eab1299d4): do half the work by exploiting `p <-> q` symmetry
 - [4](https://github.com/ssciwr/jove-performance/commit/eb5d88e977ab9e25f9d67640c25690c57575029a): use [Eigen](https://eigen.tuxfamily.org) instead of Armadillo to generate vectorized code
 - [5](https://github.com/ssciwr/jove-performance/commit/6e44a30dc6f18f9f8faf02e99e7f9b7d8c874eb1): refactor to avoid some copies
+- [6](https://github.com/ssciwr/jove-performance/commit/90b66ba36773a49b1464b5c6d166ace945ab2735): avoid hidden copies in armadillo
 
 See the relevant commit message & changes to the code for more details
 
