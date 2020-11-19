@@ -1,6 +1,10 @@
 # Performance Engineering Example: libjove 
 
-An example of how the serial and parallel performance of a numerical c++ code can be increased.
+An example of the counselling the SSC can provide to improve both the serial and parallel performance of a numerical c++ code.
+
+## Overview
+
+This performance-critical piece of code had several opportunities for optimization. With a series of small changes to the code, the single core performance increased by a factor 5, and the algorithm was parallelized with near perfect scaling.
 
 Key concepts used here to increase the serial performance:
 
