@@ -1,15 +1,20 @@
-# libjove
+# Performance Engineering Example: libjove 
 
-Working GIT of the JOVE (high-performance parallelization of QC calculations through grid quadrature) Project at the Dreuw Group
-This library should be stand-alone if armadillo is installed. Use the do_configure script to set up your cmake environment. 
+An example of how the serial and parallel performance of a numerical c++ code can be increased.
 
-TODOs:
-- implement omni-grid class 
-- implement simple 3d grid for visualization (?)
-- new parallelization scheme
-- HPC ready
+Key concepts used here to increase the serial performance:
 
-## Benchmark history
+- layout data and order loops to avoid cache misses
+- use a specialized linear algebra library to generate optimized code
+
+Key concepts used here to increase the parallel performance:
+
+- use a `reduction` pragma to ensure thread safety
+- collapse multiple loops to improve scaling for higher numbers of threads
+- use `dynamic` scheduling to share uneven workloads equally between threads
+- prevent the operating system from moving running threads between cores
+
+## Serial Benchmark history
 
 The serial speed-up from each commit to the repo:
 
@@ -24,7 +29,9 @@ The serial speed-up from each commit to the repo:
 
 See the relevant commit message & changes to the code for more details
 
-![benchmark](benchmark.png)
+![benchmark](benchmarks/benchmark.png)
+
+## Parallel Scaling history
 
 The parallel speed-up from each commit to the repo:
 
@@ -37,4 +44,4 @@ The parallel speed-up from each commit to the repo:
 
 See the relevant commit message & changes to the code for more details
 
-![scaling](scaling.png)
+![scaling](benchmarks/scaling.png)
