@@ -5,10 +5,10 @@
 # assumes the library has been built in /build
 
 echo "# threads	wall clock (ms)"
-cd build/tests
+cd build
 for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
 do
-  t=$(OMP_NUM_THREADS=$n ./libjove_tests | grep "Main Timer" | awk '{print $9}')
+  t=$(OMP_NUM_THREADS=$n ./tests/libjove_tests | grep "Main Timer" | awk '{print $9}')
   echo "$n		$t"
 done
-cd ../..
+cd ..
