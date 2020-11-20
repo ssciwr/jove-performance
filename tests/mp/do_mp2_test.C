@@ -18,6 +18,7 @@ namespace libjove {
                 std::ostringstream out;
                 double energy = 0;
                 energy = mp2.calc_mp2(out, vault);
+                std::cout << out.str() << std::endl;
 
                 return ((std::abs(energy - cenergy) <= tol) ? 1 : 0);        
         }//run_test

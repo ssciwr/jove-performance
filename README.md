@@ -49,3 +49,9 @@ The parallel speed-up from each commit to the repo:
 See the relevant commit message & changes to the code for more details
 
 ![scaling](benchmarks/scaling.png)
+
+## Parallel Scaling h3coh test case
+
+This test case has larger matrices and longer loops than the previous one, which results in nearly perfect linear scaling of the performance with the number of threads:
+
+![h3coh-scaling](benchmarks/h3coh/scaling.png)
