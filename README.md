@@ -22,14 +22,14 @@ Key concepts used here to increase the parallel performance:
 
 The serial speed-up from each commit to the repo:
 
-- [0](https://github.com/ssciwr/jove-performance/commit/301456c5f643a935abef0628a5edc8eb1f8b1b35): original version
-- [1](https://github.com/ssciwr/jove-performance/commit/f87ef27788cc33d5cceb1764b3526e7d9919e983): transpose data storage order to be more cache friendly
-- [2](https://github.com/ssciwr/jove-performance/commit/e3bf8948cf872f88556be4e5facfc130fad8fad1): swap loop order to traverse data in cache friendly way
-- [3](https://github.com/ssciwr/jove-performance/commit/b12d8e45c3533d69f2f02c5e2ecd924eab1299d4): do half the work by exploiting `p <-> q` symmetry
-- [4](https://github.com/ssciwr/jove-performance/commit/eb5d88e977ab9e25f9d67640c25690c57575029a): use [Eigen](https://eigen.tuxfamily.org) instead of Armadillo to generate vectorized code
-- [5](https://github.com/ssciwr/jove-performance/commit/6e44a30dc6f18f9f8faf02e99e7f9b7d8c874eb1): refactor to avoid some copies
-- [6](https://github.com/ssciwr/jove-performance/commit/57348b411257e3b8bbdd95faff600337e1e64566): refactor to allow parallelization & remove std::cout
-- [7](https://github.com/ssciwr/jove-performance/commit/90b66ba36773a49b1464b5c6d166ace945ab2735): avoid hidden copies in armadillo
+- [0](https://github.com/ssciwr/jove-performance/commit/9759c71ac1fb5fa8c6ac62954063e9bc4c77bbbf): original version
+- [1](https://github.com/ssciwr/jove-performance/commit/216392b86444deba72acabcafc2eaaf9624f68b0): transpose data storage order to be more cache friendly
+- [2](https://github.com/ssciwr/jove-performance/commit/e5f2c5e3ccff79c6b1da83e442da79169469048b): swap loop order to traverse data in cache friendly way
+- [3](https://github.com/ssciwr/jove-performance/commit/a62bb274b8813d3eee01a2bf0d5fd14d57f7e1b7): do half the work by exploiting `p <-> q` symmetry
+- [4](https://github.com/ssciwr/jove-performance/commit/cd65939886b61325daa3afce601ba4f182cbd2b5): use [Eigen](https://eigen.tuxfamily.org) instead of Armadillo to generate vectorized code
+- [5](https://github.com/ssciwr/jove-performance/commit/d1d4afe2d11b613e0b6ad7611b893c1dc139fedc): refactor to avoid some copies
+- [6](https://github.com/ssciwr/jove-performance/commit/7f6c82b51df597af69e6372e90af6c917cf3c27a): refactor to allow parallelization & remove std::cout
+- [7](https://github.com/ssciwr/jove-performance/commit/fe269976754d0953cc2dc3c78741b439b99ceeda): avoid hidden copies in armadillo
 
 See the relevant commit message & changes to the code for more details
 
@@ -39,12 +39,12 @@ See the relevant commit message & changes to the code for more details
 
 The parallel speed-up from each commit to the repo:
 
-- [tsize](https://github.com/ssciwr/jove-performance/commit/ad5555cd3a866fe4f5891a0213fce31b440d477b): parallelize over `tsize`
-- [npts](https://github.com/ssciwr/jove-performance/commit/6f09110046bd1ca68a2d736ab77a65e66d59357a): parallelize over `npts`
-- [tsize+npts](https://github.com/ssciwr/jove-performance/commit/b6d5a45df752d4a317542e6828c8cc402c46087f): parallelize over `tsize` and `npts`
-- [tsize+npts/dynamic](https://github.com/ssciwr/jove-performance/commit/06722f4918bee199c391a76d138a35924cf05af7): parallelize over `tsize` and `npts` + dynamic scheduling
-- [tsize+npts/dynamic+bind](https://github.com/ssciwr/jove-performance/commit/57348b411257e3b8bbdd95faff600337e1e64566): parallelize over `tsize` and `npts` + dynamic scheduling + `export OMP_PROC_BIND=true` to stop OS from moving threads between cores
-- [tsize+npts/dynamic+bind+nocopies](https://github.com/ssciwr/jove-performance/commit/90b66ba36773a49b1464b5c6d166ace945ab2735): as above + avoid hidden copies in armadillo
+- [tsize](https://github.com/ssciwr/jove-performance/commit/c7411f354d29000b1873b34879918807e2b1462e): parallelize over `tsize`
+- [npts](https://github.com/ssciwr/jove-performance/commit/b0e50d49ae245791b63fe7a26b11ad7c0109ecbd): parallelize over `npts`
+- [tsize+npts](https://github.com/ssciwr/jove-performance/commit/7f6c82b51df597af69e6372e90af6c917cf3c27a): parallelize over `tsize` and `npts`
+- [tsize+npts/dynamic](https://github.com/ssciwr/jove-performance/commit/37efed9c9a05f6db0b11584862fbbd5e9873de3e): parallelize over `tsize` and `npts` + dynamic scheduling
+- [tsize+npts/dynamic+bind](https://github.com/ssciwr/jove-performance/commit/ebd7c21a6662b270839c9b71836035ca85836c27): parallelize over `tsize` and `npts` + dynamic scheduling + `export OMP_PROC_BIND=true` to stop OS from moving threads between cores
+- [tsize+npts/dynamic+bind+nocopies](https://github.com/ssciwr/jove-performance/commit/fe269976754d0953cc2dc3c78741b439b99ceeda): as above + avoid hidden copies in armadillo
 
 See the relevant commit message & changes to the code for more details
 
