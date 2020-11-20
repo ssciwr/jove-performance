@@ -106,37 +106,40 @@ namespace libjove {
                 Eigen::VectorXd v_p;
                 Eigen::MatrixXd c2_p;
 
-#pragma omp parallel for reduction(+:e_mp2) schedule(dynamic) default(none) firstprivate(o_p, v_p, c2_p) shared(tsize, npts, occ, virt, twts, o_i_p_k, v_a_p_k, tcoulomb, teps_o, teps_v, teps_c) collapse(2)
+#pragma omp parallel for reduction(+:e_mp2) schedule(static) default(none) firstprivate(o_p, v_p, c2_p) shared(tsize, npts, occ, virt, twts, o_i_p_k, v_a_p_k, tcoulomb, teps_o, teps_v, teps_c) collapse(2)
                 for (int k = 0; k < tsize; k++){
-                        for (int p = 0; p < npts; p++){
-                                // calculate t^x factors for this p & insert here - avoid copying everything
-                                o_p = VecMap(o_i_p_k.colptr(p), occ).cwiseProduct(teps_o[k]);
-                                v_p = VecMap(v_a_p_k.colptr(p), virt).cwiseProduct(teps_v[k]);
-                                c2_p = MatMap(tcoulomb.slice_memptr(p), occ, virt).cwiseProduct(teps_c[k]);
-                                for (int q = 0; q <= p; q++){
-                                        // construct Eigen types that are const refs to the armadillo raw data
-                                        VecMap o_q(o_i_p_k.colptr(q), occ);
-                                        VecMap v_q(v_a_p_k.colptr(q), virt);
-                                        MatMap c2_q(tcoulomb.slice_memptr(q), occ, virt);
-                                        double jo=0;
-                                        for (int a = 0; a < virt; a++){
-                                                double tmp1 = o_p.dot(c2_q.col(a));
-                                                double tmp2 = o_q.dot(c2_p.col(a));
-                                                jo += tmp1 * tmp2;
-                                        }//a
-                                        // note: the above could be written as
-                                        // double jo = ((c2_q.transpose()*o_p)).dot((c2_p.transpose()*o_q));
-                                        // but the result is much slower than the explicit loop above
-                                        double j = (c2_p.cwiseProduct(c2_q)).sum();
-                                        double o = (o_p).dot(o_q);
-                                        double v = (v_p).dot(v_q);
-                                        double sum = (jo - 2 * j * o) * v;
-                                        if(p!=q){
-                                                sum *= 2.0;
-                                        }
-                                        e_mp2 += twts(0,k) * sum;
-                                }//for q
-                        }//for p
+                        for (int lowerhalf_p = 0; lowerhalf_p < npts/2; lowerhalf_p++){
+                                // convert triangle to square: each loop iteration now has a similar workload
+                                for (int p : {static_cast<int>(npts - 1 - lowerhalf_p), static_cast<int>(lowerhalf_p)}){
+                                        // calculate t^x factors for this p & insert here - avoid copying everything
+                                        o_p = VecMap(o_i_p_k.colptr(p), occ).cwiseProduct(teps_o[k]);
+                                        v_p = VecMap(v_a_p_k.colptr(p), virt).cwiseProduct(teps_v[k]);
+                                        c2_p = MatMap(tcoulomb.slice_memptr(p), occ, virt).cwiseProduct(teps_c[k]);
+                                        for (int q = 0; q <= p; q++){
+                                                // construct Eigen types that are const refs to the armadillo raw data
+                                                VecMap o_q(o_i_p_k.colptr(q), occ);
+                                                VecMap v_q(v_a_p_k.colptr(q), virt);
+                                                MatMap c2_q(tcoulomb.slice_memptr(q), occ, virt);
+                                                double jo=0;
+                                                for (int a = 0; a < virt; a++){
+                                                        double tmp1 = o_p.dot(c2_q.col(a));
+                                                        double tmp2 = o_q.dot(c2_p.col(a));
+                                                        jo += tmp1 * tmp2;
+                                                }//a
+                                                // note: the above could be written as
+                                                // double jo = ((c2_q.transpose()*o_p)).dot((c2_p.transpose()*o_q));
+                                                // but the result is much slower than the explicit loop above
+                                                double j = (c2_p.cwiseProduct(c2_q)).sum();
+                                                double o = (o_p).dot(o_q);
+                                                double v = (v_p).dot(v_q);
+                                                double sum = (jo - 2 * j * o) * v;
+                                                if(p!=q){
+                                                        sum *= 2.0;
+                                                }
+                                                e_mp2 += twts(0,k) * sum;
+                                        }//for q
+                                }//two p values
+                        }//for lowerhalf_p
                         //out<<"  E_MP2: "<<e_mp2<<" with inc: "<<twts(0,k)*e_k<<" at t-Point, Weight "<<tpts(0,k)<<", "<<twts(0,k)<<" no."<<k+1<<"/"<<tsize<<std::endl;
                 }//for k
 
