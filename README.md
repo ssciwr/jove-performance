@@ -16,7 +16,7 @@ Key concepts used here to increase the parallel performance:
 - use a `reduction` pragma to ensure thread safety
 - collapse multiple loops to improve scaling for higher numbers of threads
 - use `dynamic` scheduling to share uneven workloads equally between threads
-- prevent the operating system from moving running threads between cores
+- use `OMP_PROC_BIND` to prevent the operating system from moving running threads between cores
 
 ## Serial Benchmark history
 
@@ -48,10 +48,10 @@ The parallel speed-up from each commit to the repo:
 
 See the relevant commit message & changes to the code for more details
 
+![scaling-h20](benchmarks/h2o/scaling.png)
+
+## Parallel Scaling
+
+The optimal parallel scaling for two sets of tests data: `H2O` and `H3COH`. The second test case has larger matrices and longer loops than the first one, which results in nearly perfect linear scaling of the performance with the number of threads:
+
 ![scaling](benchmarks/scaling.png)
-
-## Parallel Scaling h3coh test case
-
-This test case has larger matrices and longer loops than the previous one, which results in nearly perfect linear scaling of the performance with the number of threads:
-
-![h3coh-scaling](benchmarks/h3coh/scaling.png)
