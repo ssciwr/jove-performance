@@ -1,0 +1,16 @@
+# H3COH data
+# Wall timer from the example test program
+# compiled with: CXX=clang++ cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_CXX_FLAGS="-march=native"
+# clang-12, CPU: Intel i5-9500
+#
+# Best of 3 runs, output of Main Timer:
+#
+# commit	ms		comment
+0		138468		original version
+1		132251		transpose data storage order to be more cache friendly
+2		156346		swap loop order to traverse data in cache friendly way
+3		77851		do half the work by exploiting p<->q symmetry
+4		24966		use Eigen instead of Armadillo to generate vectorized code
+5		23548		refactor to avoid some copies
+6		23929		refactor to allow parallelization & remove std::cout
+7		21856		avoid hidden Armadillo copies

@@ -1,4 +1,5 @@
-# Time taken to run the example test program
+# H2O data
+# Wall timer from the example test program
 # compiled with: CXX=clang++ cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_CXX_FLAGS="-march=native"
 # clang-12, CPU: AMD Ryzen 3900x
 #
