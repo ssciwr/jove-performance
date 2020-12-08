@@ -55,3 +55,8 @@ See the relevant commit message & changes to the code for more details
 The optimal parallel scaling for two sets of tests data: `H2O` and `H3COH`. The second test case has larger matrices and longer loops than the first one, which results in nearly perfect linear scaling of the performance with the number of threads:
 
 ![scaling](benchmarks/scaling.png)
+
+On a larger machine with more cpu cores (4 x 15-core/30-thread Intel Xeon E7-4870 v2) the smaller test case doesn't scale so well due to the small size of the data, but the larger `H3COH` test case exhibits good scaling with the number of threads:
+
+![scaling_xeon](benchmarks/scaling_xeon.png)
+*Note: On this machine we do `export OMP_PROC_BIND=spread` for the scaling test, otherwise OpenMP tends to assign threads to hyperthreads instead of physical cores*
