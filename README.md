@@ -52,11 +52,49 @@ See the relevant commit message & changes to the code for more details
 
 ## Parallel Scaling
 
-The optimal parallel scaling for two sets of tests data: `H2O` and `H3COH`. The second test case has larger matrices and longer loops than the first one, which results in nearly perfect linear scaling of the performance with the number of threads:
+The parallel scaling for various sets of test data, on a server with 2x 26-core/52-thread Xeon Gold 6230R CPUs.
 
-![scaling](benchmarks/scaling.png)
+![scaling](benchmarks/scaling_hgs.png)
 
-On a larger machine with more cpu cores (4 x 15-core/30-thread Intel Xeon E7-4870 v2) the smaller test case doesn't scale so well due to the small size of the data, but the larger `H3COH` test case exhibits good scaling with the number of threads:
+### Minimal relevant background on cache & hyperthreading
 
-![scaling_xeon](benchmarks/scaling_xeon.png)
-*Note: On this machine we do `export OMP_PROC_BIND=spread` for the scaling test, otherwise OpenMP tends to assign threads to hyperthreads instead of physical cores*
+- cpus are much faster than memory, so they cache data
+  - each cpu core has its own cache (a tiny amount of very very fast memory)
+  - all cpu cores also share a larger cache (about 30MB of very fast memory)
+  - main memory (RAM) is much larger, but also much slower
+- a cpu core looks for data in its cache -> if not found, in shared cache -> if not found, in main memory
+  - going all the way to main memory is about 100x slower than having it in its own cache
+  - this is a "cache miss", and means the core waits around doing nothing until the data is transferred
+- to avoid this waiting, these cores support two threads per core (hyperthreading)
+  - only one thread can be running on the core at a given time
+  - but if one has to wait because of a cache miss, the other can run in the meantime
+  - if every instruction is a cache miss, this doesn't help, since both threads are waiting for data
+  - if every instruction is a cache hit, it also doesn't help, since there is no spare cpu time to run the second thread
+  - if there are a mix of hits and misses, then it can improve performance
+
+### Analysis of scaling results
+
+| dataset   | matrix size | number | approx MB |
+| --------- | ----------- | ------ | --------- |
+| H2O       | 13 x 13     | 2280   | 1         |
+| H3COH     | 26 x 26     | 4560   | 12        |
+| C14H10    | 146 x 146   | 18240  | 1500      |
+| PORPHYRIN | 244 x 244   | 28880  | 6600      |
+
+The `H2O` dataset scales well for the first few threads, then drops off,
+and adding more threads than cores actually makes the run time worse.
+This is likely due to the overhead of dynamic scheduling,
+which is non-negligible for this dataset since the entire
+benchmark only takes a few tens of milliseconds to run.
+
+The `H3COH` dataset exhibits near-perfect scaling until the number of threads is equal to the number of cores.
+This makes sense, as all the data fits into cache, so there should be very few cache misses regardless of the 
+number of threads used, so adding threads linearly improves performance up to the number of cores, and beyond that
+has no effect on performance. 
+
+For the `C14H10` dataset the data is much larger than the cache, so we see sub-linear scaling as the number of
+threads increases, most likely due to increased cache misses. Because of these cache misses, we do now see an improvement
+in the performance when the number of threads is increased beyond the number of cores. The final speed up using
+all threads is approximately equal to the number of physical cores.
+
+*Note: On this machine we do `export OMP_PROC_BIND=spread` for the scaling test, otherwise OpenMP tends to assign threads to hyperthreads instead of physical cores. Also turbo boost has been disabled.*
