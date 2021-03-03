@@ -7,4 +7,5 @@ set xlabel "Threads"
 set k t l
 p x w l ls 0 t "perfect scaling", \
 'h2o/scaling_4.txt' u 1:(372/$2) w lp t "H2O", \
-'h3coh/scaling_4.txt' u 1:(16531/$2) w lp t "H3COH"
+'h3coh/scaling_4.txt' u 1:(16531/$2) w lp t "H3COH", \
+'c14h10/scaling_4.txt' u 1:(456625/$2) w lp t "C14H10"

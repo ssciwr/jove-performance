@@ -1,0 +1,16 @@
+# C14H10 data (not included in git repo)
+# Only the k=0 iteration of the outer loop was done to reduce the time required to run the benchmarks
+# Main wall timer from the example test program
+# compiled with: CXX=clang++ cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_CXX_FLAGS="-march=native" on AMD Ryzen 3900X
+#
+# Single run, output of Main Timer:
+#
+# commit	ms		comment
+0		3748462		original version
+1		3273156		transpose data storage order to be more cache friendly
+2		3165277		swap loop order to traverse data in cache friendly way
+3		1583364		do half the work by exploiting p<->q symmetry
+4		493826		use Eigen instead of Armadillo to generate vectorized code
+5		547255		refactor to avoid some copies
+6		474290		refactor to allow parallelization & remove std::cout
+7		466368		avoid hidden Armadillo copies
